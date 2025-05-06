@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Unificado BTC + Mercados</title>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 10px;
+      background-color: #121212;
+      color: #e0e0e0;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      max-width: 1200px;
+      margin: 0 auto;
+      height: 95vh;
+    }
+    .card {
+      background: #1e1e2e;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+    }
+    .green { color: #4caf50; }
+    .red { color: #f44336; }
+    .neutral { color: #9e9e9e; }
+    h1, h2, h3 { 
+      color: #ffffff; 
+      margin: 0 0 5px 0;
+      font-size: 0.9em;
+    }
+    .btc-chart-container {
+      flex: 1;
+      min-height: 400px;
+      margin-bottom: 5px;
+    }
+    .decision-panel {
+      background: #252538;
+      padding: 6px;
+      border-radius: 6px;
+      margin-top: 5px;
+      font-size: 0.75em;
+    }
+    .decision-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 3px;
+    }
+    .decision-value {
+      font-weight: bold;
+    }
+    .compact-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+      margin-top: 5px;
+      font-size: 0.7em;
+    }
+    .summary-item {
+      padding: 3px;
+      background: #252538;
+      border-radius: 3px;
+      text-align: center;
+    }
+    .market-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+    .market-iframe {
+      flex: 1;
+      min-height: 0;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 5px;
+    }
+    #fear-greed {
+      font-size: 0.8em;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .indicator-value {
+      font-weight: bold;
+      margin-top: 2px;
+    }
+    #btc-price {
+      font-size: 0.8em;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1 style="text-align: center; margin: 5px 0 10px 0; font-size: 1.1em;">Painel BTC + S&P 500 + Nasdaq</h1>
+  <div class="container">
+
+    <!-- Painel BTC com Gráfico Ampliado -->
+    <div class="card">
+      <h2>BTC/BRL - Análise Daytrade</h2>
+      <div id="btc-price">Carregando preço...</div>
+      <div class="btc-chart-container">
+        <iframe src="https://s.tradingview.com/embed-widget/advanced-chart/?locale=br#%7B%22symbol%22%3A%22BINANCE%3ABTCBRL%22%2C%22interval%22%3A%2215%22%2C%22range%22%3A%221D%22%2C%22theme%22%3A%22dark%22%2C%22style%22%3A%221%22%2C%22hide_top_toolbar%22%3Atrue%2C%22withdateranges%22%3Atrue%2C%22hide_side_toolbar%22%3Afalse%2C%22allow_symbol_change%22%3Atrue%2C%22save_image%22%3Afalse%2C%22studies%22%3A%5B%22RSI%40tv-basicstudies%22%5D%2C%22autosize%22%3Atrue%7D"></iframe>
+      </div>
+
+      <div class="decision-panel">
+        <div class="decision-row">
+          <span>Tendência:</span>
+          <span class="decision-value green" id="trend">Alta</span>
+          <span>Entrada:</span>
+          <span class="decision-value green" id="entry-price">-</span>
+        </div>
+        <div class="decision-row">
+          <span>Momento:</span>
+          <span class="decision-value red" id="momentum">Sobrevendido</span>
+          <span>Stop:</span>
+          <span class="decision-value red" id="stop-price">-</span>
+        </div>
+      </div>
+
+      <div class="compact-grid">
+        <div class="summary-item">
+          <div>RSI</div>
+          <div class="indicator-value neutral">54.2</div>
+        </div>
+        <div class="summary-item">
+          <div>MACD</div>
+          <div class="indicator-value green">+125</div>
+        </div>
+        <div class="summary-item">
+          <div>Volume</div>
+          <div class="indicator-value neutral">1.2B</div>
+        </div>
+        <div class="summary-item">
+          <div>Bollinger</div>
+          <div class="indicator-value neutral">62.1k</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Painel Direito Compacto -->
+    <div class="card">
+      <h2>Fear & Greed</h2>
+      <p id="fear-greed">Carregando...</p>
+      
+      <div class="market-container">
+        <div class="market-iframe">
+          <h2>S&P 500</h2>
+          <iframe src="https://s.tradingview.com/embed-widget/advanced-chart/?locale=br#%7B%22symbol%22%3A%22OANDA%3ASPX500USD%22%2C%22interval%22%3A%2215%22%2C%22range%22%3A%225d%22%2C%22theme%22%3A%22dark%22%2C%22style%22%3A%221%22%2C%22hide_top_toolbar%22%3Atrue%2C%22withdateranges%22%3Atrue%2C%22hide_side_toolbar%22%3Afalse%2C%22allow_symbol_change%22%3Atrue%2C%22save_image%22%3Afalse%2C%22studies%22%3A%5B%5D%2C%22autosize%22%3Atrue%7D"></iframe>
+        </div>
+        
+        <div class="market-iframe">
+          <h2>Nasdaq</h2>
+          <iframe src="https://s.tradingview.com/embed-widget/advanced-chart/?locale=br#%7B%22symbol%22%3A%22NASDAQ%3AIXIC%22%2C%22interval%22%3A%2215%22%2C%22range%22%3A%225d%22%2C%22theme%22%3A%22dark%22%2C%22style%22%3A%221%22%2C%22hide_top_toolbar%22%3Atrue%2C%22withdateranges%22%3Atrue%2C%22hide_side_toolbar%22%3Afalse%2C%22allow_symbol_change%22%3Atrue%2C%22save_image%22%3Afalse%2C%22studies%22%3A%5B%5D%2C%22autosize%22%3Atrue%7D"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Função para buscar o preço do BTC/BRL na Binance
+    async function fetchBitcoinPrice() {
+      try {
+        const response = await axios.get("https://api.binance.com/api/v3/ticker/price?symbol=BTCBRL");
+        const currentPrice = parseFloat(response.data.price).toFixed(2);
+        return currentPrice;
+      } catch (error) {
+        console.error("Erro ao buscar preço do BTC:", error);
+        return null;
+      }
+    }
+
+    // Função para atualizar os valores de trade (Entrada e Stop)
+    async function updateTradeValues() {
+      const currentPrice = await fetchBitcoinPrice();
+      if (!currentPrice) {
+        document.getElementById("btc-price").textContent = "Erro ao carregar preço";
+        return;
+      }
+
+      // Exibe o preço atual
+      document.getElementById("btc-price").textContent = `Preço Atual: R$ ${currentPrice}`;
+
+      // Calcula Entrada (+1%) e Stop (-1%)
+      const entryPrice = (currentPrice * 1.01).toFixed(2);
+      const stopPrice = (currentPrice * 0.99).toFixed(2);
+
+      // Atualiza os valores na interface
+      document.getElementById("entry-price").textContent = `R$ ${entryPrice}`;
+      document.getElementById("stop-price").textContent = `R$ ${stopPrice}`;
+
+      // Atualiza a tendência com base no preço (exemplo simplificado)
+      const trendElement = document.getElementById("trend");
+      const momentumElement = document.getElementById("momentum");
+      
+      if (currentPrice > entryPrice) {
+        trendElement.textContent = "Alta";
+        trendElement.className = "decision-value green";
+      } else {
+        trendElement.textContent = "Baixa";
+        trendElement.className = "decision-value red";
+      }
+    }
+
+    // Fear & Greed Index
+    async function fetchFearGreed() {
+      try {
+        const res = await axios.get("https://api.alternative.me/fng/?limit=1");
+        const data = res.data.data[0];
+        const value = parseInt(data.value);
+        let status = "";
+        if (value >= 75) status = '<span class="red">EXT GREED</span>';
+        else if (value >= 60) status = '<span class="red">GREED</span>';
+        else if (value <= 25) status = '<span class="green">EXT FEAR</span>';
+        else if (value <= 40) status = '<span class="green">FEAR</span>';
+        else status = '<span class="neutral">NEUTRO</span>';
+        
+        document.getElementById("fear-greed").innerHTML = `${value} - ${status}`;
+      } catch (err) {
+        document.getElementById("fear-greed").textContent = "Erro";
+      }
+    }
+
+    // Inicialização
+    window.onload = () => {
+      fetchFearGreed();
+      updateTradeValues(); // Atualiza imediatamente
+      setInterval(fetchFearGreed, 300000); // Atualiza Fear & Greed a cada 5 min
+      setInterval(updateTradeValues, 60000); // Atualiza preço e trades a cada 1 min
+    };
+  </script>
+</body>
+</html>
